@@ -7,7 +7,7 @@ macro_rules! instruction {
         pub unsafe fn $fnname() {
             match () {
                 #[cfg(all(riscv, feature = "inline-asm"))]
-                () => llvm_asm!($asm :::: "volatile"),
+                () => core::arch::asm!($asm),
 
                 #[cfg(all(riscv, not(feature = "inline-asm")))]
                 () => {
@@ -60,7 +60,7 @@ instruction!(
 pub unsafe fn sfence_vma(asid: usize, addr: usize) {
     match () {
         #[cfg(all(riscv, feature = "inline-asm"))]
-        () => llvm_asm!("sfence.vma $0, $1" :: "r"(asid), "r"(addr) :: "volatile"),
+        () => core::arch::asm!("sfence.vma {0}, {1}", in(reg) addr, in(reg) asid),
 
         #[cfg(all(riscv, not(feature = "inline-asm")))]
         () => {
